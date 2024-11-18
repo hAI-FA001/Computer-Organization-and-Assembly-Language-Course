@@ -1,0 +1,13 @@
+org 100h
+
+
+.code
+MOV CX, 8
+MOV AL, 11011100b
+
+REVERSE:
+	SHL AL, 1
+	RCR BL, 1
+LOOP REVERSE
+
+MOV AL, BL
