@@ -1,0 +1,34 @@
+org 100h
+
+.code
+NUMBER EQU 0FA21h
+
+MOV DH, 0
+MOV CX, 16
+MOV BX, NUMBER
+
+OUTP:
+	
+	ROL BX, 1
+	JC OUT_ONE
+	MOV DL, 30h
+	JMP OUTPUT
+	
+	OUT_ONE:
+		MOV DL, 31h
+		
+	OUTPUT:
+		MOV AH, 2
+		INT 21h
+		
+	INC DH
+	CMP DH, 4
+	JE SHOW_SPACE
+	LOOP OUTP
+	SHOW_SPACE:
+		MOV DL, ' '
+		MOV AH, 2
+		INT 21h
+		MOV DH, 0
+	
+LOOP OUTP

@@ -1,0 +1,69 @@
+org 100h
+
+.code
+MOV BX, 0
+MOV CH, 4
+
+GET:
+
+	CMP CH, 0
+	JE END_
+	
+	MOV AH, 1
+	INT 21h
+	
+	CMP AL, 0Dh
+	JE END_
+	
+	MOV DL, AL
+	
+	CMP DL, '0'
+	JGE MAYBE_DEC_OR_HEX
+	JMP GET
+	
+	MAYBE_DEC_OR_HEX:
+		CMP DL, '9'
+		JLE IS_DEC
+		CMP DL, 'A'
+		JGE MAYBE_HEX
+		JMP GET
+		
+	MAYBE_HEX:
+		CMP DL, 'F'
+		JLE IS_HEX
+		JMP GET
+	
+	IS_DEC:
+		SHL BX, 4
+		AND DL, 11001111b ;convert ascii
+		ADD BL, DL
+		DEC CH
+		JMP GET
+		
+	IS_HEX:
+		SHL BX, 4
+		AND DX,0000_1111b
+		OR DX, 0000_1000b
+		MOV CL, 01h
+		JMP ADD_ONE
+		AFTER_ADD:
+		ADD BL, DL
+		DEC CH
+
+JMP GET
+
+END_:
+	ret
+	
+ADD_ONE:
+	
+	TEST DL, CL
+	JNZ HAS_ONE
+	XOR DL, CL
+	JMP AFTER_ADD
+	
+	HAS_ONE:
+		XOR DL, CL
+		SHL CL, 1
+	
+JMP ADD_ONE	

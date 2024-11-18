@@ -1,0 +1,26 @@
+org 100h
+
+.code
+DELIM EQU 0Dh
+
+MOV BX, 0
+
+TAKE_INPUT:
+	MOV AH, 1
+	INT 21h
+	
+	CMP AL, DELIM
+	JE END
+	
+	CMP AL, '0'
+	JL TAKE_INPUT
+	CMP AL, '1'
+	JG TAKE_INPUT
+	
+	AND AL, 1100_1111b ;convert ASCII to dec
+	SHR AL, 1
+	RCL BX, 1
+JMP TAKE_INPUT
+
+END:
+	ret
