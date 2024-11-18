@@ -1,0 +1,111 @@
+org 100h
+
+.stack 100h
+
+.data
+count DB 100
+sepAtFour DB 0
+
+.code
+
+MAIN PROC
+	CALL READ
+	
+	PUSH AX
+	MOV AH, 2
+	MOV DL, 0Ah
+	INT 21h
+	MOV DL, 0Dh
+	INT 21h
+	POP AX
+	
+	MAIN_LOOP:
+		CALL RANDOM
+		CALL WRITE
+		
+		DEC count
+		CMP count, 0
+		JNE MAIN_LOOP
+	ret
+MAIN ENDP
+
+
+READ PROC
+	MOV AH, 1
+	MOV CX, 16
+	AND DX, 0
+	
+	GET_BIN:
+		INT 21h
+		AND AL, 0Fh
+		
+		SHL DX, 1
+		OR DL, AL
+			
+	LOOP GET_BIN
+	
+	MOV AX, DX
+	
+	ret
+READ ENDP
+
+RANDOM PROC
+	SHL AX, 1
+	AND DX, 0
+	MOV DL, AH
+	MOV DH, AH
+	
+	SHR DL, 6
+	SHR DH, 7
+	
+	XOR DL, DH
+	
+	AND AX, 0FFFEh
+	AND DL, 01h
+	OR AL, DL
+	
+	AND AX, 07FFFh
+	ret
+RANDOM ENDP
+
+WRITE PROC
+	MOV CX, 16
+	MOV BX, AX
+	MOV AH, 2
+	CMP sepAtFour, 4
+	JNE DISPLAY
+	MOV DL, 0Ah
+	INT 21h
+	MOV DL, 0Dh
+	INT 21h
+	AND sepAtFour, 0
+	
+	
+	DISPLAY:
+		ROL BX, 1
+		JC PRINT_ONE
+		JMP PRINT_ZERO
+		
+		PRINT_ONE:
+			MOV DX, 31h
+			JMP PRINT
+		PRINT_ZERO:
+			MOV DX, 30h
+			JMP PRINT
+			
+		PRINT:
+			INT 21h	
+	LOOP DISPLAY
+	
+	MOV CX, 4
+	SPACE:
+		MOV DL, ' '
+		INT 21h
+	LOOP SPACE
+	
+	
+	MOV AX, BX
+	INC sepAtFour
+	
+	ret
+WRITE ENDP	

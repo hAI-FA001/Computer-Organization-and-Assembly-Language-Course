@@ -1,0 +1,114 @@
+;2, 3, 6, 8
+
+org 100h
+.stack 100h
+
+.code
+COMMENT @
+	AX  1234h
+	BX  5678h
+	CX  9ABCh
+	SP  100h
+	
+	PUSH AX
+	PUSH BX
+	XCHG AX, CX
+	POP CX
+	PUSH AX
+	POP BX
+	
+	AX  9ABCh
+	CX  5678h
+	BX  9ABCh
+	SP  102h
+	
+@
+COMMENT @
+MOV CX, 0FFFEh
+PSH:
+	PUSH 1234h
+LOOP PSH
+@
+
+COMMENT @
+PUSH 1234h
+PUSH 5678h
+
+
+
+POP AX
+PUSH AX
+
+POP AX
+POP CX
+PUSH CX
+PUSH AX
+
+
+POP AX
+POP BX
+PUSH AX
+PUSH BX
+@
+
+
+
+MOV DX, offset msg
+MOV AH, 9
+INT 21h
+
+LEA SI, inp
+MOV CX, 0
+MOV AH, 1
+GET:
+	INT 21h
+	CMP AL, 0Ah
+	JE DONE
+	CMP AL, 0Dh
+	JE DONE
+	
+	CMP AL, ' '
+	JE REV
+	
+	MOV DL, AL
+	AND DH, 0
+	PUSH DX
+	INC CX
+	JMP GET
+	
+	REV:
+		POP DX
+		MOV [SI], DL
+		INC SI
+	LOOP REV
+	
+	MOV [SI], ' '
+	INC SI
+	MOV CX, 0
+	JMP GET
+
+DONE:
+REV2:
+	POP DX
+	MOV [SI], DL
+	INC SI
+LOOP REV2
+MOV [SI], ' '
+
+MOV [SI+1], '$'
+
+MOV AH, 2
+MOV DL, 0Ah
+INT 21h
+MOV DL, 0Dh
+INT 21h
+
+MOV DX, offset inp
+MOV AH, 9
+INT 21h
+
+ret
+
+.data
+msg DB 'Enter some text: $'
+inp DB ?
