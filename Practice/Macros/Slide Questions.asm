@@ -1,0 +1,66 @@
+org 100h
+
+.stack 100h
+
+.code
+
+RETURN MACRO
+	MOV AH, 4Ch
+	INT 21h
+ENDM
+
+CRLF MACRO
+	PUSH AX
+	PUSH DX
+	
+	MOV AH, 2
+	MOV DL, 0Ah
+	INT 21h
+	
+	MOV DL, 0Dh
+	INT 21h
+	
+	POP DX
+	POP AX
+ENDM
+
+PRINT_HEX_DIGIT MACRO HexByte
+	PUSH AX
+	PUSH DX
+	
+	MOV DL, HexByte
+	MOV AL, 9
+	CMP DL, AL
+	
+	JG IS_HEX
+	
+	MOV AH, 2
+	OR DL, 30h
+	INT 21h
+	JMP EXIT
+	
+	IS_HEX:
+		MOV AH, 2
+		DEC DL
+		AND DL, 07h
+		OR DL, 40h
+		INT 21h
+	
+	EXIT:
+	
+		POP DX
+		POP AX
+ENDM
+
+MAIN PROC
+	
+	CRLF
+	CRLF
+	
+	MOV AL, 15 
+	PRINT_HEX_DIGIT AL
+	
+	
+	RETURN
+	RET
+MAIN ENDP
