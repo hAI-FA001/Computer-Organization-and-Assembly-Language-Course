@@ -1,0 +1,36 @@
+org 100h
+
+.data
+A DW 5
+B DW 2
+C DW 0
+
+
+.code
+MOV AX, 5
+IMUL A
+MOV A, AX
+
+SUB AX, 7
+MOV A, AX
+
+
+
+MOV AX, B
+ADD AX, 10
+MOV BX, A
+SUB BX, B
+IMUL BX
+
+MOV B, AX
+
+
+
+MOV AX, A
+MOV BL, 9
+IMUL BL
+MOV BX, 6
+SUB BX, AX
+MOV C, BX
+
+ret

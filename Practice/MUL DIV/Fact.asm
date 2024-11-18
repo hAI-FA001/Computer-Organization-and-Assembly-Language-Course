@@ -1,0 +1,18 @@
+org 100h
+
+.data
+TERM DW 5
+PROD DW 1
+
+.code
+MOV AX, PROD
+MOV CX, TERM
+
+CALC:
+	IMUL TERM ;could MUL CX
+	DEC TERM
+LOOP CALC
+MOV PROD, AX
+
+
+ret
