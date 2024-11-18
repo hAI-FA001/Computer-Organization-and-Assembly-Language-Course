@@ -1,0 +1,104 @@
+org 100h
+
+.data
+nums DB 5 DUP(0)
+numsLen DW $-nums
+sum DB 0
+
+
+
+.code
+MAIN PROC
+	
+	LEA SI, nums
+	MOV CX, numsLen
+	GET_IN:
+		CALL GET_DEC
+		INC SI
+		CALL PRINT_LN
+	LOOP GET_IN
+	
+	MOV BX, 0
+	LEA SI, nums
+	MOV CX, numsLen
+	SUM_NUM:
+		MOV AL, sum
+		ADD AL, [SI+BX]
+		INC BX
+		MOV sum, AL
+	LOOP SUM_NUM
+	
+	CALL PRINT_LN
+	
+	MOV AX, 0
+	MOV AL, sum
+	CALL SHOW_DEC
+	
+	ret
+MAIN ENDP
+
+PRINT_LN PROC
+	MOV AH, 2
+	MOV DL, 0Ah
+	INT 21h
+	MOV DL, 0Dh
+	INT 21h
+	RET
+PRINT_LN ENDP
+
+GET_DEC PROC
+	CRET EQU 0Dh
+	NEWL EQU 0Ah
+	
+	MOV AH, 1
+	
+	TAKE_IN:
+		INT 21h
+		CMP AL, CRET
+		JE DONE
+		CMP AL, NEWL
+		JE DONE
+		
+		AND AL, 0Fh
+		MOV BL, AL
+		
+		AND AX, 0
+		MOV AL, [SI]
+		MOV DL, 10
+		MUL DL
+		ADD AL, BL
+		
+		MOV [SI], AL
+		MOV AH, 1
+	JMP TAKE_IN
+	
+	DONE:
+		RET
+GET_DEC ENDP
+
+SHOW_DEC PROC
+	MOV CX, 0
+	
+	SEP_DIGITS:
+		MOV BX, 10
+		DIV BL
+		
+		AND BX, 0
+		MOV BL, AH
+		PUSH BX
+		AND AH, 0
+		
+		INC CX
+		CMP AX, 0
+		JE DONE_SEP
+	JMP SEP_DIGITS
+	
+	DONE_SEP:
+		MOV AH, 2
+		DISPLAY:
+			POP DX
+			OR DL, 30h
+			INT 21h
+		LOOP DISPLAY
+	
+SHOW_DEC ENDP

@@ -1,0 +1,47 @@
+org 100h
+
+.data
+count DB 0
+
+.code
+MOV AX, 0FFFFh
+CMP AX, 0
+JGE NON_NEG
+
+NEG AX
+MOV BX, AX
+MOV AH, 2
+MOV DL, '-'
+INT 21h
+MOV AX, BX
+
+NON_NEG:
+
+CONVT:
+	MOV BL, 0Ah
+	DIV BL
+	
+	AND CX, 0
+	MOV CL, AH
+	PUSH CX
+	
+	AND AH, 0
+	MOV BL, AL
+	
+	INC count
+	CMP BL, 0
+	JE DONE_C
+JMP CONVT
+DONE_C:
+
+MOV AH, 2
+AND CX, 0
+MOV CL, count
+DISPLAY_DEC:
+	POP DX
+	OR DL, 30h
+	INT 21h
+LOOP DISPLAY_DEC
+
+
+ret
