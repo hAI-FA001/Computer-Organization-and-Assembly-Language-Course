@@ -1,0 +1,135 @@
+org 100h
+
+.data
+num1 DB 0
+num2 DB 0
+sum DB 0
+diff DB 0
+
+sumStr DB 0Dh, 0Ah, 'Sum: '
+sumStrSize DW $-sumStr
+difStr DB 0Dh, 0Ah, 'Difference: '
+difStrSize DW $-difStr
+
+.code
+MOV AH, 1
+MOV CX, 2
+GET_FIRST:
+	INT 21h
+	CMP AL, '9'
+	JA ABOVE_10
+	AND AL, 0Fh
+	JMP AFTER_CONVT_1
+	
+	ABOVE_10:
+		AND AL, 0Fh
+		OR AL, 08h
+		INC AL
+		
+	AFTER_CONVT_1:
+		ROL num1, 4
+		OR num1, AL
+	
+LOOP GET_FIRST
+
+MOV AH, 2
+MOV DL, 0Dh
+INT 21h
+MOV DL, 0Ah
+INT 21h
+MOV AH, 1
+
+MOV CX, 2
+GET_SEC:
+	INT 21h
+	CMP AL, '9'
+	JA ABOVE_10_2
+	AND AL, 0Fh
+	JMP AFTER_CONVT_2
+	
+	ABOVE_10_2:
+		AND AL, 0Fh
+		OR AL, 08h
+		INC AL
+		
+	AFTER_CONVT_2:
+		ROL num2, 4
+		OR num2, AL
+		
+LOOP GET_SEC
+
+MOV DL, num1
+ADD DL, num2
+MOV sum, DL
+
+MOV DL, num1
+SUB DL, num2
+MOV diff, DL
+
+
+MOV AH, 2
+MOV CX, sumStrSize
+LEA SI, sumStr
+SHOW_SUM:
+	MOV DL, [SI]
+	INT 21h
+	INC SI
+LOOP SHOW_SUM
+
+
+MOV BL, sum
+MOV CX, 2
+OUT_SUM:
+	MOV DL, BL
+	SHR DL, 4
+	SHL BL, 4
+	CMP DL, 0Ah
+	JB LESS_10
+	
+	OR DL, 40h
+	AND DL, 0F7h
+	DEC DL
+	JMP AFTER_CONVT
+	
+	LESS_10:
+		OR DL, 30h
+		
+	AFTER_CONVT:	
+		INT 21h
+	
+LOOP OUT_SUM
+
+
+
+MOV CX, difStrSize
+LEA SI, difStr
+SHOW_DIF:
+	MOV DL, [SI]
+	INT 21h
+	INC SI
+LOOP SHOW_DIF
+
+
+MOV BL, diff
+MOV CX, 2
+OUT_DIF:
+	MOV DL, BL
+	SHR DL, 4
+	SHL BL, 4
+	CMP DL, 0Ah
+	JB LESS_10_D
+	
+	OR DL, 40h
+	AND DL, 0F7h
+	DEC DL
+	JMP AFTER_CONVT_D
+	
+	LESS_10_D:
+		OR DL, 30h
+		
+	AFTER_CONVT_D:	
+		INT 21h
+	
+LOOP OUT_DIF
+
+ret

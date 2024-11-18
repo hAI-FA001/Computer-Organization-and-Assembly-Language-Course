@@ -1,0 +1,16 @@
+org 100h
+
+.code
+
+MOV BX, 77h
+AND AX, 0
+MOV CX, 16
+
+COUNT:
+	RCL BX, 1
+	JNC NO_INC
+	INC AX
+	NO_INC:
+LOOP COUNT
+
+ret
